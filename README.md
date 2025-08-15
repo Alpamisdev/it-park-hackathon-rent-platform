@@ -48,7 +48,7 @@ A comprehensive office rental platform built with FastAPI, SQLAlchemy, and Tailw
 
 ### 1. Clone the Repository
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/Alpamisdev/it-park-hackathon-rent-platform.git
 cd it_park_rent_platform
 ```
 
@@ -85,12 +85,6 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 The application will be available at `http://localhost:8000`
-
-## 🔐 Default Login Credentials
-
-- **Email**: `admin@mail.com`
-- **Password**: `12345`
-- **Role**: Superadmin
 
 ⚠️ **Important**: Change the default password after first login!
 

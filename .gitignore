@@ -281,3 +281,5 @@ htmlcov/
 .coverage.*
 coverage.xml
 *.cover
+
+add_super_admin.py
