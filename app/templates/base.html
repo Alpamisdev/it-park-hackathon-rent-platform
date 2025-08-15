@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Office Rental Platform{% endblock %}</title>
+
+  <!-- 1) Подключаем Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- 2) Настраиваем кастомные цвета IT Park -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'itpark-green': '#7CC223',
+            'itpark-green-dark': '#6AB21C',
+            'itpark-dark': '#003366'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen">
+  <!-- Header -->
+  <header class="bg-itpark-dark text-white">
+    <div class="container mx-auto flex justify-between items-center px-4 py-3 flex-wrap">
+      <a href="/" class="text-xl font-bold">OfficeRent</a>
+      <nav class="space-x-4">
+        <a href="/" class="hover:text-itpark-green transition">Home</a>
+        <a href="/buildings" class="hover:text-itpark-green transition">Buildings</a>
+        <a href="/contracts" class="hover:text-itpark-green transition">Contracts</a>
+        <a href="/login" class="hover:text-itpark-green transition">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="container mx-auto px-4 py-6 flex-grow">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-itpark-dark text-white text-center py-4">
+    © {{ current_year }} OfficeRent Platform. All rights reserved.
+  </footer>
+</body>
+</html>

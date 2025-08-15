@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}{{ building.name }} - Building Details{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+  <!-- Header / Title & CTA -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-itpark-dark">{{ building.name }}</h1>
+      <p class="text-gray-600">{{ building.address }}</p>
+    </div>
+    <!-- <button onclick="openContractModal()" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded w-full md:w-auto">Start Contract</button> -->
+  </div>
+
+  <!-- Main grid: Gallery + Info -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Gallery -->
+    <div class="lg:col-span-2">
+      <div class="bg-white rounded shadow overflow-hidden">
+        {% set main_image = (images and images[0]) or url_for('static', path='/images/default.jpg') %}
+        <img id="mainImage" src="{{ main_image }}" alt="{{ building.name }}" class="w-full h-80 object-cover">
+        {% if images and images|length > 1 %}
+        <div class="p-4 bg-gray-50">
+          <div class="flex gap-3 overflow-x-auto">
+            {% for img in images %}
+            <img src="{{ img }}" alt="thumb" class="h-16 w-24 object-cover rounded cursor-pointer border hover:border-itpark-green" onclick="setMainImage('{{ img }}')">
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- 360 support -->
+      {% if images_360 is defined and images_360 %}
+      <div class="mt-4 bg-white rounded shadow p-4">
+        <h3 class="font-semibold text-itpark-dark mb-2">360° Photos</h3>
+        <div class="flex gap-3 overflow-x-auto">
+          {% for img in images_360 %}
+          <a href="{{ img }}" target="_blank" class="text-itpark-green hover:text-itpark-green-dark underline">Open 360° View</a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Info card -->
+    <div class="lg:col-span-1">
+      <div class="bg-white rounded shadow p-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600">Floors</span>
+          <span class="font-semibold">{{ building.floors }}</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600">Total available area</span>
+          {% set total_available = (available_spaces | sum(attribute='area')) if available_spaces else building.total_area %}
+          <span class="font-semibold">{{ '%.2f'|format(total_available) }} m²</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-gray-600">Price per m²</span>
+          <span class="font-semibold">${{ '%.2f'|format(building.price_per_m2) }}</span>
+        </div>
+      </div>
+
+      <!-- Facilities -->
+      {% if facilities %}
+      <div class="bg-white rounded shadow p-4 mt-4">
+        <h3 class="font-semibold text-itpark-dark mb-3">Features</h3>
+        <div class="flex flex-wrap gap-2">
+          {% for f in facilities %}
+          <span class="px-3 py-1 bg-gray-100 rounded text-sm">{{ f }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Nearby places -->
+      {% if nearby_places %}
+      <div class="bg-white rounded shadow p-4 mt-4">
+        <h3 class="font-semibold text-itpark-dark mb-3">Nearby (within 1km)</h3>
+        <ul class="list-disc ml-5 space-y-1">
+          {% for p in nearby_places %}
+          <li class="text-gray-700">{{ p }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Available spaces -->
+  <div class="mt-8 bg-white rounded shadow">
+    <div class="border-b px-4 py-3">
+      <h2 class="text-lg font-semibold text-itpark-dark">Available Spaces</h2>
+    </div>
+    <div class="p-4">
+      {% set open_spaces = available_spaces | selectattr('room_number', 'undefined') | list %}
+      {% set office_spaces = available_spaces | selectattr('room_number', 'defined') | list %}
+
+      {% if open_spaces %}
+      <h3 class="font-semibold mb-2">Open Space (by floors)</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="text-left px-3 py-2">Floor</th>
+              <th class="text-left px-3 py-2">Area (m²)</th>
+              <th class="text-left px-3 py-2">Est. Price</th>
+              <th class="text-right px-3 py-2">Select</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in open_spaces %}
+            {% set est = (s.area or 0) * (building.price_per_m2 or 0) %}
+            <tr class="border-b">
+              <td class="px-3 py-2">{{ s.floor }}</td>
+              <td class="px-3 py-2">{{ '%.2f'|format(s.area) }}</td>
+              <td class="px-3 py-2">${{ '%.2f'|format(est) }}</td>
+              <td class="px-3 py-2 text-right">
+                <input type="checkbox" class="space-check accent-itpark-green" data-id="{{ s.id }}" data-type="floor" data-ref="{{ s.floor }}" data-area="{{ '%.2f'|format(s.area) }}" data-price-per-m2="{{ building.price_per_m2 }}" data-total-price="{{ '%.2f'|format(est) }}">
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+
+      {% if office_spaces %}
+      <h3 class="font-semibold mt-6 mb-2">Offices (divided)</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="text-left px-3 py-2">Floor</th>
+              <th class="text-left px-3 py-2">Room #</th>
+              <th class="text-left px-3 py-2">Area (m²)</th>
+              <th class="text-left px-3 py-2">Est. Price</th>
+              <th class="text-right px-3 py-2">Select</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in office_spaces %}
+            {% set est = (s.area or 0) * (building.price_per_m2 or 0) %}
+            <tr class="border-b">
+              <td class="px-3 py-2">{{ s.floor }}</td>
+              <td class="px-3 py-2">{{ s.room_number }}</td>
+              <td class="px-3 py-2">{{ '%.2f'|format(s.area) }}</td>
+              <td class="px-3 py-2">${{ '%.2f'|format(est) }}</td>
+              <td class="px-3 py-2 text-right">
+                <input type="checkbox" class="space-check accent-itpark-green" data-id="{{ s.id }}" data-type="room" data-ref="{{ s.room_number }}" data-area="{{ '%.2f'|format(s.area) }}" data-price-per-m2="{{ building.price_per_m2 }}" data-total-price="{{ '%.2f'|format(est) }}">
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Start Contract Button (hidden initially) -->
+  <div class="mt-6">
+    <button id="start-contract-btn" class="hidden bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded" onclick="prepareAndOpenContract()">Start Contract</button>
+  </div>
+
+  <!-- Contract Modal -->
+  <div id="contractModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center">
+    <div class="bg-white rounded shadow-lg w-full max-w-md p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-itpark-dark">Start Contract</h3>
+        <button onclick="closeContractModal()" class="text-gray-500 hover:text-gray-700">✕</button>
+      </div>
+      <form method="post" action="/rental-requests">
+        {% if csrf_token %}
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        {% endif %}
+        <input type="hidden" name="building_id" value="{{ building.id }}">
+        <input type="hidden" id="selectedSpaces" name="selected_spaces" value="">
+        <input type="hidden" id="totalPrice" name="total_price" value="">
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium mb-1">Zero Risk program</label>
+            <div class="flex gap-4">
+              <label class="inline-flex items-center gap-2">
+                <input type="radio" name="zero_risk" value="yes" onchange="toggleZeroRisk(true)"> Yes
+              </label>
+              <label class="inline-flex items-center gap-2">
+                <input type="radio" name="zero_risk" value="no" checked onchange="toggleZeroRisk(false)"> No
+              </label>
+            </div>
+          </div>
+          <div id="zeroRiskDoc" class="hidden">
+            <label class="block text-sm font-medium mb-1">Zero Risk order number</label>
+            <input type="text" name="zero_risk_doc" class="w-full border rounded px-3 py-2" placeholder="Enter order number">
+          </div>
+        </div>
+
+        <div class="mt-5 flex justify-end gap-2">
+          <button type="button" onclick="closeContractModal()" class="px-4 py-2 border rounded">Cancel</button>
+          <button type="submit" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">Continue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setMainImage(src) {
+    const img = document.getElementById('mainImage');
+    if (img) img.src = src;
+  }
+  function openContractModal() {
+    const m = document.getElementById('contractModal');
+    if (!m) return;
+    m.classList.remove('hidden');
+    m.classList.add('flex');
+  }
+  function closeContractModal() {
+    const m = document.getElementById('contractModal');
+    if (!m) return;
+    m.classList.add('hidden');
+    m.classList.remove('flex');
+  }
+  function toggleZeroRisk(show) {
+    const el = document.getElementById('zeroRiskDoc');
+    if (!el) return;
+    if (show) {
+      el.classList.remove('hidden');
+    } else {
+      el.classList.add('hidden');
+    }
+  }
+
+  // Checkbox selection logic to show Start Contract button
+  function updateStartButtonVisibility() {
+    const checks = document.querySelectorAll('.space-check');
+    const anyChecked = Array.from(checks).some(c => c.checked);
+    const btn = document.getElementById('start-contract-btn');
+    if (!btn) return;
+    if (anyChecked) btn.classList.remove('hidden'); else btn.classList.add('hidden');
+  }
+  document.addEventListener('change', (e) => {
+    if (e.target && e.target.classList && e.target.classList.contains('space-check')) {
+      updateStartButtonVisibility();
+    }
+  });
+  document.addEventListener('DOMContentLoaded', updateStartButtonVisibility);
+
+  function prepareAndOpenContract() {
+    const checks = Array.from(document.querySelectorAll('.space-check')).filter(c => c.checked);
+    if (checks.length === 0) return;
+    const spaces = checks.map(c => ({
+      id: Number(c.dataset.id),
+      type: c.dataset.type,
+      ref: c.dataset.ref,
+      area: Number(c.dataset.area),
+      pricePerM2: Number(c.dataset.pricePerM2 || c.dataset.pricePerM2 || 0),
+      total: Number(c.dataset.totalPrice || 0)
+    }));
+    const total = spaces.reduce((s, x) => s + (x.total || (x.area * x.pricePerM2)), 0);
+    document.getElementById('selectedSpaces').value = JSON.stringify(spaces);
+    document.getElementById('totalPrice').value = total.toFixed(2);
+    openContractModal();
+  }
+</script>
+{% endblock %}
+
+

@@ -1,0 +1,838 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-itpark-dark text-white flex flex-col">
+        <div class="px-6 py-4 text-xl font-bold border-b border-gray-700 flex items-center justify-between">
+            <span>Admin</span>
+            <button class="md:hidden block" onclick="toggleSidebar()">☰</button>
+        </div>
+        <nav class="flex-1 px-2 py-4 space-y-1">
+            <a href="#buildings" data-section="buildings" class="nav-link flex items-center gap-2 px-3 py-2 rounded hover:bg-[#0a3a7a]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M9 8h6m-7 4h8m-9 4h10M9 3h6v5H9z"></path></svg>
+                <span>Buildings</span>
+            </a>
+            <a href="#rooms" data-section="rooms" class="nav-link flex items-center gap-2 px-3 py-2 rounded hover:bg-[#0a3a7a]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                <span>Rooms</span>
+            </a>
+            <a href="#photos" data-section="photos" class="nav-link flex items-center gap-2 px-3 py-2 rounded hover:bg-[#0a3a7a]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h4l2-3h6l2 3h4v12H3z"></path></svg>
+                <span>Photos</span>
+            </a>
+            <a href="#contracts" data-section="contracts" class="nav-link flex items-center gap-2 px-3 py-2 rounded hover:bg-[#0a3a7a]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16h8M8 12h8m-7-8h6a2 2 0 012 2v14l-5-3-5 3V6a2 2 0 012-2z"></path></svg>
+                <span>Contracts</span>
+            </a>
+            <a href="#approvals" data-section="approvals" class="nav-link flex items-center gap-2 px-3 py-2 rounded hover:bg-[#0a3a7a]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <span>Approvals</span>
+            </a>
+            <a href="#signers" data-section="signers" class="nav-link flex items-center gap-2 px-3 py-2 rounded hover:bg-[#0a3a7a]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14l9 5-9 5-9-5 9-5z"/></svg>
+                <span>Signers</span>
+            </a>
+            <a href="#users" data-section="users" class="nav-link flex items-center gap-2 px-3 py-2 rounded hover:bg-[#0a3a7a]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A8 8 0 1118.88 6.196 8 8 0 015.12 17.804z"></path></svg>
+                <span>Admins</span>
+            </a>
+            <a href="#regions" data-section="regions" class="nav-link flex items-center gap-2 px-3 py-2 rounded hover:bg-[#0a3a7a]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4"></path></svg>
+                <span>Regions</span>
+            </a>
+            <a href="#amenities" data-section="amenities" class="nav-link flex items-center gap-2 px-3 py-2 rounded hover:bg-[#0a3a7a]">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"></path></svg>
+                <span>Amenities</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 bg-gray-50 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <div id="breadcrumb" class="text-sm text-gray-500">Dashboard / <span id="crumb-current">Buildings</span></div>
+                    <h1 class="text-2xl font-bold text-itpark-dark">Dashboard</h1>
+                </div>
+                <form method="post" action="/logout">
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Logout</button>
+                </form>
+            </div>
+            {% if msg %}
+                <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">{{ msg }}</div>
+            {% endif %}
+            {% if error %}
+                <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">{{ error }}</div>
+            {% endif %}
+
+            <!-- Regions -->
+            <section id="regions" class="mb-12 section-panel hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-itpark-dark">Regions</h2>
+                    <button onclick="openModal('addRegionModal')" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">+ Add</button>
+                </div>
+                <div class="overflow-x-auto bg-white shadow rounded">
+                    <table class="min-w-full">
+                        <thead class="bg-itpark-dark text-white">
+                            <tr>
+                                <th class="px-4 py-2 text-left">ID</th>
+                                <th class="px-4 py-2 text-left">Name</th>
+                                <th class="px-4 py-2 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for region in regions %}
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-2">{{ region.id }}</td>
+                                <td class="px-4 py-2">{{ region.name }}</td>
+                                 <td class="px-4 py-2">
+                                     <div class="flex gap-2">
+                                         <button onclick="prepareEditRegion('{{ region.id }}','{{ region.name }}')" class="text-itpark-green">Edit</button>
+                                         <form method="post" action="/admin/regions/delete" onsubmit="return confirm('Delete region?')">
+                                             <input type="hidden" name="id" value="{{ region.id }}" />
+                                             <button type="submit" class="text-red-600">Delete</button>
+                                         </form>
+                                     </div>
+                                 </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Amenities (only here; used by Buildings as selectable) -->
+            <section id="amenities" class="mb-12 section-panel hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-itpark-dark">Amenities</h2>
+                    <form method="post" action="/admin/amenities" class="flex gap-2 items-end">
+                        <div>
+                            <label class="block text-sm">Name</label>
+                            <input type="text" name="name" class="border p-2 rounded" placeholder="Amenity name (e.g., Wi-Fi)" required>
+                        </div>
+                        <!-- <div>
+                            <label class="block text-sm">Icon (optional)</label>
+                            <input type="text" name="icon" class="border p-2 rounded" placeholder="icon-name or URL">
+                        </div> -->
+                        <label class="inline-flex items-center gap-2">
+                            <input type="checkbox" name="is_active" value="1" checked> Active
+                        </label>
+                        <button type="submit" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">+ Add</button>
+                    </form>
+                </div>
+                <div class="overflow-x-auto bg-white shadow rounded">
+                    <table class="min-w-full">
+                        <thead class="bg-itpark-dark text-white">
+                            <tr>
+                                <th class="px-4 py-2 text-left">ID</th>
+                                <th class="px-4 py-2 text-left">Name</th>
+                                <th class="px-4 py-2 text-left">Icon</th>
+                                <th class="px-4 py-2 text-left">Active</th>
+                                <th class="px-4 py-2 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in amenities %}
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-2">{{ a.id }}</td>
+                                <td class="px-4 py-2">{{ a.name }}</td>
+                                <td class="px-4 py-2">{{ a.icon or '-' }}</td>
+                                <td class="px-4 py-2">{{ 'Yes' if a.is_active else 'No' }}</td>
+                                <td class="px-4 py-2">
+                                    <form method="post" action="/admin/amenities/delete" onsubmit="return confirm('Delete amenity?')">
+                                        <input type="hidden" name="id" value="{{ a.id }}" />
+                                        <button type="submit" class="text-red-600">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Buildings -->
+            <section id="buildings" class="mb-12 section-panel">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-itpark-dark">Buildings</h2>
+                    <form method="post" action="/admin/buildings" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-8 gap-2 items-end">
+                        <input type="text" name="name" placeholder="Name" class="border p-2 rounded" required>
+                        <input type="text" name="address" placeholder="Address" class="border p-2 rounded" required>
+                        <input type="text" name="city" placeholder="City" class="border p-2 rounded" required>
+                        <input type="number" name="region_id" placeholder="Region ID" class="border p-2 rounded" required>
+                        <input type="number" name="floors" placeholder="Floors" class="border p-2 rounded" required>
+                        <input type="number" step="0.01" name="total_area" placeholder="Total Area" class="border p-2 rounded" required>
+                        <input type="number" step="0.01" name="price_per_m2" placeholder="Price/m²" class="border p-2 rounded" required>
+                        <!-- Select amenities only from list -->
+                        <div class="col-span-full">
+                            <label class="block text-sm mb-1">Amenities (select from list)</label>
+                            <div class="flex flex-wrap gap-3">
+                                {% for a in amenities if a.is_active %}
+                                <label class="inline-flex items-center gap-2">
+                                    <input type="checkbox" name="amenity_ids" value="{{ a.id }}"> {{ a.name }}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-span-full">
+                            <label class="block text-sm mb-1">Upload Images</label>
+                            <input type="file" name="images" accept="image/*" multiple>
+                        </div>
+                        <button type="submit" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">+ Add</button>
+                    </form>
+                </div>
+                <div class="overflow-x-auto bg-white shadow rounded">
+                    <table class="min-w-full">
+                        <thead class="bg-itpark-dark text-white">
+                            <tr>
+                                <th class="px-4 py-2 text-left">ID</th>
+                                <th class="px-4 py-2 text-left">Name</th>
+                                <th class="px-4 py-2 text-left">City</th>
+                                <th class="px-4 py-2 text-left">Region</th>
+                                <th class="px-4 py-2 text-left">Floors</th>
+                                <th class="px-4 py-2 text-left">Price/m²</th>
+                                <th class="px-4 py-2 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in buildings %}
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-2">{{ b.id }}</td>
+                                <td class="px-4 py-2">{{ b.name }}</td>
+                                <td class="px-4 py-2">{{ b.city }}</td>
+                                <td class="px-4 py-2">{{ b.region_id }}</td>
+                                <td class="px-4 py-2">{{ b.floors }}</td>
+                                <td class="px-4 py-2">{{ b.price_per_m2 }}</td>
+                                <td class="px-4 py-2">
+                                    <form method="post" action="/admin/buildings/delete" onsubmit="return confirm('Delete building?')">
+                                        <input type="hidden" name="id" value="{{ b.id }}" />
+                                        <button type="submit" class="text-red-600">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Admins -->
+            <section id="users" class="mb-12 section-panel hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-itpark-dark">Admins</h2>
+                    <form method="post" action="/admin/users" class="flex gap-2 items-end">
+                        <div>
+                            <label class="block text-sm">Name</label>
+                            <input type="text" name="name" class="border p-2 rounded" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm">Email</label>
+                            <input type="email" name="email" class="border p-2 rounded" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm">Password</label>
+                            <input type="password" name="password" class="border p-2 rounded" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm">Role</label>
+                            <select name="role" class="border p-2 rounded">
+                                <option value="superadmin">superadmin</option>
+                                <option value="admin">admin</option>
+                                <option value="resident">resident</option>
+                                <option value="signer">signer</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm">Region ID</label>
+                            <input type="number" name="region_id" class="border p-2 rounded" placeholder="optional">
+                        </div>
+                        <button type="submit" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">+ Add</button>
+                    </form>
+                </div>
+                <div class="overflow-x-auto bg-white shadow rounded">
+                    <table class="min-w-full">
+                        <thead class="bg-itpark-dark text-white">
+                            <tr>
+                                <th class="px-4 py-2 text-left">ID</th>
+                                <th class="px-4 py-2 text-left">Name</th>
+                                <th class="px-4 py-2 text-left">Email</th>
+                                <th class="px-4 py-2 text-left">Role</th>
+                                <th class="px-4 py-2 text-left">Region</th>
+                                <th class="px-4 py-2 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-2">{{ u.id }}</td>
+                                <td class="px-4 py-2">{{ u.name }}</td>
+                                <td class="px-4 py-2">{{ u.email }}</td>
+                                <td class="px-4 py-2">{{ u.role }}</td>
+                                <td class="px-4 py-2">{{ u.region_id }}</td>
+                                <td class="px-4 py-2">
+                                    <form method="post" action="/admin/users/delete" onsubmit="return confirm('Delete user?')">
+                                        <input type="hidden" name="id" value="{{ u.id }}" />
+                                        <button type="submit" class="text-red-600">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Rooms -->
+            <section id="rooms" class="mb-12 section-panel hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-itpark-dark">Rooms</h2>
+                    <form method="post" action="/admin/rooms" class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-9 gap-2 items-end">
+                        <input type="number" name="building_id" placeholder="Building ID" class="border p-2 rounded" required>
+                        <input type="number" name="floor" placeholder="Floor" class="border p-2 rounded" required>
+                        <select name="space_type" class="border p-2 rounded">
+                            <option value="room">Room</option>
+                            <option value="floor">Entire Floor (Open Space)</option>
+                        </select>
+                        <input type="text" name="room_number" placeholder="Room # (if Room)" class="border p-2 rounded">
+                        <input type="number" step="0.01" name="area" placeholder="Area (m²)" class="border p-2 rounded" required>
+                        <select name="status" class="border p-2 rounded">
+                            <option value="free">free</option>
+                            <option value="booked">booked</option>
+                        </select>
+                        <button type="submit" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">+ Add</button>
+                    </form>
+                </div>
+                <div class="overflow-x-auto bg-white shadow rounded">
+                    <table class="min-w-full">
+                        <thead class="bg-itpark-dark text-white">
+                            <tr>
+                                <th class="px-4 py-2 text-left">ID</th>
+                                <th class="px-4 py-2 text-left">Building</th>
+                                <th class="px-4 py-2 text-left">Floor</th>
+                                <th class="px-4 py-2 text-left">Room #</th>
+                                <th class="px-4 py-2 text-left">Area</th>
+                                <th class="px-4 py-2 text-left">Status</th>
+                                <th class="px-4 py-2 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in rooms %}
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-2">{{ r.id }}</td>
+                                <td class="px-4 py-2">{{ r.building_id }}</td>
+                                <td class="px-4 py-2">{{ r.floor }}</td>
+                                <td class="px-4 py-2">{{ r.room_number if r.room_number is not none else 'Open Floor' }}</td>
+                                <td class="px-4 py-2">{{ r.area }}</td>
+                                <td class="px-4 py-2">{{ r.status }}</td>
+                                <td class="px-4 py-2">
+                                    <form method="post" action="/admin/rooms/delete" onsubmit="return confirm('Delete room?')">
+                                        <input type="hidden" name="id" value="{{ r.id }}" />
+                                        <button type="submit" class="text-red-600">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Building Photos -->
+            <section id="photos" class="mb-12 section-panel hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-itpark-dark">Building Photos</h2>
+                    <div class="grid grid-cols-1 gap-4">
+                        <!-- direct path add -->
+                        <form method="post" action="/admin/photos" class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-2 items-end">
+                            <input type="number" name="building_id" placeholder="Building ID" class="border p-2 rounded" required>
+                            <input type="text" name="file_path" placeholder="File Path (URL or /uploads/... )" class="border p-2 rounded" required>
+                            <label class="inline-flex items-center gap-2">
+                                <input type="checkbox" name="is_360" value="1"> 360
+                            </label>
+                            <button type="submit" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">+ Add</button>
+                        </form>
+                        <!-- file upload -->
+                        <form method="post" action="/admin/photos/upload" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-2 items-end">
+                            <input type="number" name="building_id" placeholder="Building ID" class="border p-2 rounded" required>
+                            <input type="file" name="file" accept="image/*" class="border p-2 rounded" required>
+                            <label class="inline-flex items-center gap-2">
+                                <input type="checkbox" name="is_360" value="1"> 360
+                            </label>
+                            <button type="submit" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">Upload</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="overflow-x-auto bg-white shadow rounded">
+                    <table class="min-w-full">
+                        <thead class="bg-itpark-dark text-white">
+                            <tr>
+                                <th class="px-4 py-2 text-left">ID</th>
+                                <th class="px-4 py-2 text-left">Building</th>
+                                <th class="px-4 py-2 text-left">Path</th>
+                                <th class="px-4 py-2 text-left">360</th>
+                                <th class="px-4 py-2 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in photos %}
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-2">{{ p.id }}</td>
+                                <td class="px-4 py-2">{{ p.building_id }}</td>
+                                <td class="px-4 py-2">{{ p.file_path }}</td>
+                                <td class="px-4 py-2">{{ p.is_360 }}</td>
+                                <td class="px-4 py-2">
+                                    <form method="post" action="/admin/photos/delete" onsubmit="return confirm('Delete photo?')">
+                                        <input type="hidden" name="id" value="{{ p.id }}" />
+                                        <button type="submit" class="text-red-600">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Contracts -->
+            <section id="contracts" class="mb-12 section-panel hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-itpark-dark">Contracts</h2>
+                    <form method="post" action="/admin/contracts" class="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-8 gap-2 items-end">
+                        <input type="number" name="building_id" placeholder="Building ID" class="border p-2 rounded" required>
+                        <input type="number" name="user_id" placeholder="User ID" class="border p-2 rounded" required>
+                        <input type="text" name="selected_rooms" placeholder="Selected Rooms (JSON ids)" class="border p-2 rounded" required>
+                        <input type="number" step="0.01" name="total_price" placeholder="Total Price" class="border p-2 rounded" required>
+                        <label class="inline-flex items-center gap-2">
+                            <input type="checkbox" name="zero_risk" value="1"> Zero Risk
+                        </label>
+                        <input type="text" name="zero_risk_doc" placeholder="Zero Risk Doc" class="border p-2 rounded">
+                        <select name="status_value" class="border p-2 rounded">
+                            <option value="pending">pending</option>
+                            <option value="approved">approved</option>
+                            <option value="rejected">rejected</option>
+                        </select>
+                        <button type="submit" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">+ Add</button>
+                    </form>
+                </div>
+                <div class="overflow-x-auto bg-white shadow rounded">
+                    <table class="min-w-full">
+                        <thead class="bg-itpark-dark text-white">
+                            <tr>
+                                <th class="px-4 py-2 text-left">ID</th>
+                                <th class="px-4 py-2 text-left">Building</th>
+                                <th class="px-4 py-2 text-left">User</th>
+                                <th class="px-4 py-2 text-left">Rooms</th>
+                                <th class="px-4 py-2 text-left">Total Price</th>
+                                <th class="px-4 py-2 text-left">Zero Risk</th>
+                                <th class="px-4 py-2 text-left">Status</th>
+                                <th class="px-4 py-2 text-left">Created</th>
+                                <th class="px-4 py-2 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in contracts %}
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-2">{{ c.id }}</td>
+                                <td class="px-4 py-2">{{ c.building_id }}</td>
+                                <td class="px-4 py-2">{{ c.user_id }}</td>
+                                <td class="px-4 py-2">{{ c.selected_rooms }}</td>
+                                <td class="px-4 py-2">{{ c.total_price }}</td>
+                                <td class="px-4 py-2">{{ c.zero_risk }}</td>
+                                <td class="px-4 py-2">{{ c.status }}</td>
+                                <td class="px-4 py-2">{{ c.created_at }}</td>
+                                <td class="px-4 py-2">
+                                    <form method="post" action="/admin/contracts/delete" onsubmit="return confirm('Delete contract?')">
+                                        <input type="hidden" name="id" value="{{ c.id }}" />
+                                        <button type="submit" class="text-red-600">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Approvals -->
+            <section id="approvals" class="mb-12 section-panel hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-itpark-dark">Approvals</h2>
+                    <form method="post" action="/admin/approvals" class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-2 items-end">
+                        <input type="number" name="contract_id" placeholder="Contract ID" class="border p-2 rounded" required>
+                        <input type="number" name="signer_id" placeholder="Signer ID" class="border p-2 rounded" required>
+                        <select name="status_value" class="border p-2 rounded">
+                            <option value="pending">pending</option>
+                            <option value="approved">approved</option>
+                            <option value="rejected">rejected</option>
+                        </select>
+                        <button type="submit" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">+ Add</button>
+                    </form>
+                </div>
+                <div class="overflow-x-auto bg-white shadow rounded">
+                    <table class="min-w-full">
+                        <thead class="bg-itpark-dark text-white">
+                            <tr>
+                                <th class="px-4 py-2 text-left">ID</th>
+                                <th class="px-4 py-2 text-left">Contract</th>
+                                <th class="px-4 py-2 text-left">Signer</th>
+                                <th class="px-4 py-2 text-left">Status</th>
+                                <th class="px-4 py-2 text-left">Approved At</th>
+                                <th class="px-4 py-2 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in approvals %}
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-2">{{ a.id }}</td>
+                                <td class="px-4 py-2">{{ a.contract_id }}</td>
+                                <td class="px-4 py-2">{{ a.signer_id }}</td>
+                                <td class="px-4 py-2">{{ a.status }}</td>
+                                <td class="px-4 py-2">{{ a.approved_at }}</td>
+                                <td class="px-4 py-2">
+                                    <form method="post" action="/admin/approvals/delete" onsubmit="return confirm('Delete approval?')">
+                                        <input type="hidden" name="id" value="{{ a.id }}" />
+                                        <button type="submit" class="text-red-600">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            
+            <!-- Signers Management (in-dashboard) -->
+            <section id="signers" class="mb-12 section-panel hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-itpark-dark">Signers</h2>
+                    <button onclick="openModal('addSignerModal')" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">+ Add Signer</button>
+                </div>
+                <div class="bg-white rounded shadow p-4 mb-4">
+                    <form method="get" action="#signers" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-sm">Region ID</label>
+                            <input type="number" name="filter_region_id" class="border p-2 rounded w-full" placeholder="e.g. 1">
+                        </div>
+                        <div>
+                            <label class="block text-sm">Position</label>
+                            <input type="text" name="filter_position" class="border p-2 rounded w-full" placeholder="e.g. Regional Director">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="button" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded" onclick="filterSigners()">Filter</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="overflow-x-auto bg-white shadow rounded">
+                    <table class="min-w-full">
+                        <thead class="bg-itpark-dark text-white">
+                            <tr>
+                                <th class="px-4 py-2 text-left">ID</th>
+                                <th class="px-4 py-2 text-left">Name</th>
+                                <th class="px-4 py-2 text-left">Position</th>
+                                <th class="px-4 py-2 text-left">Email</th>
+                                <th class="px-4 py-2 text-left">Phone</th>
+                                <th class="px-4 py-2 text-left">Region</th>
+                                <th class="px-4 py-2 text-left">Order</th>
+                                <th class="px-4 py-2 text-left">Status</th>
+                                <th class="px-4 py-2 text-left">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in signers %}
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="px-4 py-2">{{ s.id }}</td>
+                                <td class="px-4 py-2">{{ s.name }}</td>
+                                <td class="px-4 py-2">{{ s.position }}</td>
+                                <td class="px-4 py-2">{{ s.email }}</td>
+                                <td class="px-4 py-2">{{ s.phone or '-' }}</td>
+                                <td class="px-4 py-2">{{ s.region_id or '-' }}</td>
+                                <td class="px-4 py-2">{{ s.signing_order }}</td>
+                                <td class="px-4 py-2">{{ s.status }}</td>
+                                <td class="px-4 py-2">
+                                    <button class="text-itpark-green edit-signer-btn" 
+                                            data-id="{{ s.id }}"
+                                            data-name="{{ s.name }}"
+                                            data-position="{{ s.position }}"
+                                            data-email="{{ s.email }}"
+                                            data-phone="{{ s.phone or '' }}"
+                                            data-region-id="{{ s.region_id or '' }}"
+                                            data-signing-order="{{ s.signing_order }}"
+                                            data-status="{{ s.status }}">Edit</button>
+                                    |
+                                    <form method="post" action="/admin/signers/delete" class="inline" onsubmit="return confirm('Delete signer?')">
+                                        <input type="hidden" name="id" value="{{ s.id }}">
+                                        <button type="submit" class="text-red-600">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Add Signer Modal -->
+            <div id="addSignerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div class="bg-white rounded-lg p-6 w-96">
+                    <h3 class="text-lg font-semibold mb-4 text-itpark-dark">Add Signer</h3>
+                    <form method="POST" action="/admin/signers">
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm">Full Name</label>
+                                <input type="text" name="name" class="border p-2 w-full rounded" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm">Position</label>
+                                <select name="position" class="border p-2 w-full rounded">
+                                    <option>Regional Director</option>
+                                    <option>Main Manager</option>
+                                    <option>Accountant</option>
+                                    <option>Lawyer</option>
+                                    <option>General Director</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm">Email</label>
+                                <input type="email" name="email" class="border p-2 w-full rounded" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm">Phone</label>
+                                <input type="text" name="phone" class="border p-2 w-full rounded" placeholder="+998...">
+                            </div>
+                            <div>
+                                <label class="block text-sm">Region ID (optional)</label>
+                                <input type="number" name="region_id" class="border p-2 w-full rounded">
+                            </div>
+                            <div>
+                                <label class="block text-sm">Signing Order</label>
+                                <input type="number" name="signing_order" class="border p-2 w-full rounded" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm">Status</label>
+                                <select name="status_value" class="border p-2 w-full rounded">
+                                    <option value="active">active</option>
+                                    <option value="inactive">inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 mt-4">
+                            <button type="button" onclick="closeModal('addSignerModal')" class="px-4 py-2 border rounded">Cancel</button>
+                            <button type="submit" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Edit Signer Modal -->
+            <div id="editSignerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div class="bg-white rounded-lg p-6 w-96">
+                    <h3 class="text-lg font-semibold mb-4 text-itpark-dark">Edit Signer</h3>
+                    <form method="POST" action="/admin/signers/update">
+                        <input type="hidden" name="id" id="editSignerId">
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm">Full Name</label>
+                                <input type="text" name="name" id="editSignerName" class="border p-2 w-full rounded" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm">Position</label>
+                                <select name="position" id="editSignerPosition" class="border p-2 w-full rounded">
+                                    <option>Regional Director</option>
+                                    <option>Main Manager</option>
+                                    <option>Accountant</option>
+                                    <option>Lawyer</option>
+                                    <option>General Director</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm">Email</label>
+                                <input type="email" name="email" id="editSignerEmail" class="border p-2 w-full rounded" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm">Phone</label>
+                                <input type="text" name="phone" id="editSignerPhone" class="border p-2 w-full rounded" placeholder="+998...">
+                            </div>
+                            <div>
+                                <label class="block text-sm">Region ID (optional)</label>
+                                <input type="number" name="region_id" id="editSignerRegion" class="border p-2 w-full rounded">
+                            </div>
+                            <div>
+                                <label class="block text-sm">Signing Order</label>
+                                <input type="number" name="signing_order" id="editSignerOrder" class="border p-2 w-full rounded" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm">Status</label>
+                                <select name="status_value" id="editSignerStatus" class="border p-2 w-full rounded">
+                                    <option value="active">active</option>
+                                    <option value="inactive">inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 mt-4">
+                            <button type="button" onclick="closeModal('editSignerModal')" class="px-4 py-2 border rounded">Cancel</button>
+                            <button type="submit" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+            <!-- Add Region Modal -->
+            <div id="addRegionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div class="bg-white rounded-lg p-6 w-96">
+                    <h3 class="text-lg font-semibold mb-4 text-itpark-dark">Add Region</h3>
+                    <form method="POST" action="/admin/regions">
+                        <input type="text" name="name" placeholder="Region Name" class="border p-2 w-full mb-4" required>
+                        <div class="flex justify-end gap-2">
+                            <button type="button" onclick="closeModal('addRegionModal')" class="px-4 py-2 border rounded">Cancel</button>
+                            <button type="submit" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Edit Region Modal -->
+            <div id="editRegionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div class="bg-white rounded-lg p-6 w-96">
+                    <h3 class="text-lg font-semibold mb-4 text-itpark-dark">Edit Region</h3>
+                    <form method="POST" action="/admin/regions/update">
+                        <input id="editRegionId" type="hidden" name="id">
+                        <input id="editRegionName" type="text" name="name" placeholder="Region Name" class="border p-2 w-full mb-4" required>
+                        <div class="flex justify-end gap-2">
+                            <button type="button" onclick="closeModal('editRegionModal')" class="px-4 py-2 border rounded">Cancel</button>
+                            <button type="submit" class="bg-itpark-green hover:bg-itpark-green-dark text-white px-4 py-2 rounded">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- other sections (Users, Buildings, Rooms, etc.) can be done similarly -->
+        </div>
+    </main>
+</div>
+
+<script>
+    const sections = ["buildings","rooms","photos","contracts","approvals","users","regions","amenities","signers"];
+    function setActiveLink(id){
+        document.querySelectorAll('.nav-link').forEach(a=>{
+            const match = a.getAttribute('data-section') === id;
+            a.classList.toggle('bg-[#0a3a7a]', match);
+            a.classList.toggle('font-semibold', match);
+        });
+        const crumb = document.getElementById('crumb-current');
+        if (crumb) {
+            const text = id.charAt(0).toUpperCase() + id.slice(1);
+            crumb.textContent = text;
+        }
+    }
+    function showSection(id){
+        sections.forEach(s=>{
+            const el = document.getElementById(s);
+            if (!el) return;
+            if (s === id) el.classList.remove('hidden'); else el.classList.add('hidden');
+        });
+        setActiveLink(id);
+    }
+    function initTabs(){
+        const hash = window.location.hash.replace('#','');
+        const target = sections.includes(hash) ? hash : 'buildings';
+        showSection(target);
+        document.querySelectorAll('.nav-link').forEach(a=>{
+            a.addEventListener('click', (e)=>{
+                const id = a.getAttribute('data-section');
+                showSection(id);
+            });
+        });
+        window.addEventListener('hashchange', ()=>{
+            const h = window.location.hash.replace('#','');
+            if (sections.includes(h)) showSection(h);
+        });
+    }
+    function toggleSidebar(){
+        const sb = document.getElementById('sidebar');
+        if (!sb) return;
+        sb.classList.toggle('hidden');
+    }
+    document.addEventListener('DOMContentLoaded', initTabs);
+    function openModal(id) {
+        document.getElementById(id).classList.remove("hidden");
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.add("hidden");
+    }
+    function prepareEditRegion(id, name) {
+        document.getElementById('editRegionId').value = id;
+        document.getElementById('editRegionName').value = name;
+        openModal('editRegionModal');
+    }
+    function prepareEditSigner(id, name, position, email, phone, region_id, order, status) {
+        document.getElementById('editSignerId').value = id;
+        document.getElementById('editSignerName').value = name;
+        document.getElementById('editSignerPosition').value = position;
+        document.getElementById('editSignerEmail').value = email;
+        document.getElementById('editSignerPhone').value = phone || '';
+        document.getElementById('editSignerRegion').value = region_id || '';
+        document.getElementById('editSignerOrder').value = order;
+        document.getElementById('editSignerStatus').value = status;
+        openModal('editSignerModal');
+    }
+    
+    // Event delegation for edit buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('edit-signer-btn')) {
+                const btn = e.target;
+                prepareEditSigner(
+                    btn.dataset.id,
+                    btn.dataset.name,
+                    btn.dataset.position,
+                    btn.dataset.email,
+                    btn.dataset.phone,
+                    btn.dataset.regionId,
+                    btn.dataset.signingOrder,
+                    btn.dataset.status
+                );
+            }
+        });
+    });
+    function filterSigners(){
+        const region = document.querySelector('input[name="filter_region_id"]').value;
+        const position = document.querySelector('input[name="filter_position"]').value;
+        let url = '/signers?';
+        const params = [];
+        if (region) params.push('region_id=' + encodeURIComponent(region));
+        if (position) params.push('position=' + encodeURIComponent(position));
+        url += params.join('&');
+        fetch(url).then(r=>r.json()).then(list=>{
+            const tbody = document.querySelector('#signers table tbody');
+            if (!tbody) return;
+            tbody.innerHTML = list.map(s=>`
+                <tr class="border-b hover:bg-gray-50">
+                  <td class="px-4 py-2">${s.id}</td>
+                  <td class="px-4 py-2">${s.name}</td>
+                  <td class="px-4 py-2">${s.position}</td>
+                  <td class="px-4 py-2">${s.email}</td>
+                  <td class="px-4 py-2">${s.phone || '-'}</td>
+                  <td class="px-4 py-2">${s.region_id || '-'}</td>
+                  <td class="px-4 py-2">${s.signing_order}</td>
+                  <td class="px-4 py-2">${s.status}</td>
+                  <td class="px-4 py-2">
+                    <button class="text-itpark-green edit-signer-btn" 
+                            data-id="${s.id}"
+                            data-name="${s.name}"
+                            data-position="${s.position}"
+                            data-email="${s.email}"
+                            data-phone="${s.phone || ''}"
+                            data-region-id="${s.region_id || ''}"
+                            data-signing-order="${s.signing_order}"
+                            data-status="${s.status}">Edit</button>
+                  </td>
+                </tr>
+            `).join('');
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Resident Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+  <h1 class="text-2xl md:text-3xl font-bold text-itpark-dark mb-6">Resident Dashboard</h1>
+
+  {% if notifications and notifications|length %}
+  <div class="mb-6 space-y-2">
+    {% for n in notifications %}
+    <div class="p-3 rounded border {{ 'border-green-300 bg-green-50' if not n.is_read else 'border-gray-200 bg-white' }}">
+      <div class="font-semibold text-itpark-dark">{{ n.title }}</div>
+      <div class="text-sm text-gray-700">{{ n.message }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2">
+      <div class="bg-white rounded shadow">
+        <div class="border-b px-4 py-3">
+          <h2 class="text-lg font-semibold text-itpark-dark">My Rental Requests</h2>
+        </div>
+        <div class="p-4 overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="text-left px-3 py-2">#</th>
+                <th class="text-left px-3 py-2">Building</th>
+                <th class="text-left px-3 py-2">Total</th>
+                <th class="text-left px-3 py-2">Status</th>
+                <th class="text-left px-3 py-2">Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in requests %}
+              {% set b = (buildings | selectattr('id', 'equalto', r.building_id) | list | first) %}
+              <tr class="border-b">
+                <td class="px-3 py-2">{{ r.id }}</td>
+                <td class="px-3 py-2">{{ b.name if b else r.building_id }}</td>
+                <td class="px-3 py-2">${{ '%.2f'|format(r.total_price or 0) }}</td>
+                <td class="px-3 py-2">{{ r.status }}</td>
+                <td class="px-3 py-2">{{ r.created_at }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bg-white rounded shadow mt-6">
+        <div class="border-b px-4 py-3">
+          <h2 class="text-lg font-semibold text-itpark-dark">My Contracts</h2>
+        </div>
+        <div class="p-4 overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="text-left px-3 py-2">#</th>
+                <th class="text-left px-3 py-2">Building</th>
+                <th class="text-left px-3 py-2">Total</th>
+                <th class="text-left px-3 py-2">Status</th>
+                <th class="text-left px-3 py-2">Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in contracts %}
+              {% set b = (buildings | selectattr('id', 'equalto', c.building_id) | list | first) %}
+              <tr class="border-b">
+                <td class="px-3 py-2">{{ c.id }}</td>
+                <td class="px-3 py-2">{{ b.name if b else c.building_id }}</td>
+                <td class="px-3 py-2">${{ '%.2f'|format(c.total_price or 0) }}</td>
+                <td class="px-3 py-2">{{ c.status }}</td>
+                <td class="px-3 py-2">{{ c.created_at }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-1">
+      <div class="bg-white rounded shadow p-4">
+        <h3 class="font-semibold text-itpark-dark mb-2">Browse Buildings</h3>
+        <div class="space-y-3">
+          {% for b in buildings %}
+          <a href="/building/{{ b.id }}" class="block border rounded p-3 hover:border-itpark-green">
+            <div class="font-semibold">{{ b.name }}</div>
+            <div class="text-sm text-gray-600">{{ b.city }}</div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
