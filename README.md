@@ -74,19 +74,11 @@ pip install -r requirements.txt
 python -m app.main
 ```
 
-### 5. Create Superadmin Account
-```bash
-python add_super_admin.py
-```
 
-### 6. Run the Application
+### 5. Run the Application
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
-
-The application will be available at `http://localhost:8000`
-
-⚠️ **Important**: Change the default password after first login!
 
 ## 📁 Project Structure
 
